@@ -1,27 +1,10 @@
 #!/bin/bash
 
-echo "#########################"
-echo "# Installation de Storj #"
-echo "#########################"
-
-STORJALREADYEXIST=`which storjshare | wc -l`
-if [[ $STORJALREADYEXIST -lt 1 ]]
-then
-  wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
-  source ~/.nvm/nvm.sh
-  nvm install --lts
-  sudo apt install git python build-essential
-  npm install --global storjshare-daemon
-  storjshare --help
-else
-  echo "Storj is already installed"
-fi
-
 echo "##########################"
 echo "# Installation de davfs2 #"
 echo "##########################"
 
-sudo apt-get update && sudo apt-get install -y davfs2 wget python
+sudo apt-get update && sudo apt-get install -y davfs2 wget python git
 sudo chmod 777 /etc/davfs2/davfs2.conf
 sudo adduser $USER davfs2
 
@@ -53,6 +36,8 @@ echo -n "What is your public IP / Domain name ? [ENTER]: "
 read storjNodeIP
 echo -n "What is your ETH wallet ? [ENTER]: "
 read ethWallet
+echo -n "What is your STorj Stat key ? [ENTER]: "
+read storjStatToken
 
 echo "Press any key to continue"
 read
@@ -137,6 +122,23 @@ do
   fi
 done
 
+echo "#########################"
+echo "# Installation de Storj #"
+echo "#########################"
+
+STORJALREADYEXIST=`which storjshare | wc -l`
+if [[ $STORJALREADYEXIST -lt 1 ]]
+then
+  wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+  source ~/.nvm/nvm.sh
+  nvm install --lts
+  sudo apt install git python build-essential
+  npm install --global storjshare-daemon
+  storjshare --help
+else
+  echo "Storj is already installed"
+fi
+
 echo "###############################################"
 echo "# Création du programme de lancement de Storj #"
 echo "###############################################"
@@ -168,6 +170,7 @@ echo \"----- Done -----\"
 " > /home/$USER/Storj/app/start-storj.sh
 sudo chmod +x start-storj.sh
 
+
 echo "######################"
 echo "# Création des nodes #"
 echo "######################"
@@ -180,6 +183,17 @@ do
 done
 
 cd /home/$USER/Storj/app
+
+echo "#############################"
+echo "# Installation de Storj Mon #"
+echo "#############################"
+
+git clone https://github.com/calxibe/StorjMonitor.git
+cd StorjMonitor/
+sudo chmod +x storjMonitor-install.sh
+sed -i -e "s/YOUR-TOKEN-HERE/\$storjStatToken/g" /tmp/file.txt
+cd ..
+
 
 echo "######################"
 echo "# Lancement de Storj #"
