@@ -57,6 +57,7 @@ read ethWallet
 echo "Press any key to continue"
 read
 
+wget https://raw.githubusercontent.com/yulahuyed/test/master/get-sharepoint-auth-cookie.py
 echo "python get-sharepoint-auth-cookie.py ${OD4B} ${oneDriveUsername} ${oneDrivePassword} > cookie.txt"
 python get-sharepoint-auth-cookie.py ${OD4B} ${oneDriveUsername} ${oneDrivePassword} > cookie.txt
 sed -i "s/ //g" cookie.txt
@@ -73,7 +74,7 @@ else
   echo "[/home/$USER/Storj/dataOneDrive]" >> /etc/davfs2/davfs2.conf
   echo "add_header Cookie ${COOKIE}" >> /etc/davfs2/davfs2.conf
 fi
-rm cookie.txt
+rm cookie.txt get-sharepoint-auth-cookie.py
 
 echo "###########################################"
 echo "# Ajout du point de montage dans la fstab #"
