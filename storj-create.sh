@@ -1,5 +1,6 @@
 #!/bin/bash
 
+cd ~
 echo "##########################"
 echo "# Installation de davfs2 #"
 echo "##########################"
@@ -28,6 +29,7 @@ echo -n "Please Input the OneDrive Username, e.g. 'user@domain.xyz' [ENTER]: "
 read oneDriveUsername
 echo -n "Please input the OneDrive Password [ENTER]: "
 read -s oneDrivePassword
+echo ''
 echo -n "How many Storj nodes do you want to create ? [ENTER]: "
 read nbStorjNodes
 echo -n "Storj node size (ie : 500GB) ? [ENTER]: "
@@ -69,8 +71,9 @@ FSTABALREADYEXIST=`sudo cat /etc/fstab | grep dataOneDrive | wc -l`
 if [[ $FSTABALREADYEXIST -lt 1 ]]
 then
 cat << EOF | sudo tee -a /etc/fstab
+
 # OneDrive
-${OD4B} /home/$USER/Storj/dataOneDrive davfs rw,user,_netdev,auto 0 0
+${OD4B} /home/$USER/Storj/dataOneDrive davfs rw,user,_netdev,noauto 0 0
 EOF
 else
   echo "Données déjà existantes"
@@ -145,7 +148,7 @@ echo "###############################################"
 
 if [ ! -d "Storj/app" ]; then
   echo "Création du dossier mkdir Storj/app";
-  mkdir mkdir Storj/app
+  mkdir Storj/app
 fi
 cd Storj/app
 echo "#!/bin/bash
@@ -188,12 +191,16 @@ echo "#############################"
 echo "# Installation de Storj Mon #"
 echo "#############################"
 
-git clone https://github.com/calxibe/StorjMonitor.git
-cd StorjMonitor/
-sudo chmod +x storjMonitor-install.sh
-sed -i -e "s/YOUR-TOKEN-HERE/\$storjStatToken/g" /tmp/file.txt
-cd ..
-
+if [ ! -d "/home/$USER/Storj/app/StorjMonitor" ];
+then
+  git clone https://github.com/calxibe/StorjMonitor.git
+  cd StorjMonitor/
+  sudo chmod +x storjMonitor-install.sh
+  sed -i -e "s/YOUR-TOKEN-HERE/\$storjStatToken/g" /tmp/file.txt
+  cd ..
+else
+  echo "Storj Monitor is already installed"
+fi
 
 echo "######################"
 echo "# Lancement de Storj #"
