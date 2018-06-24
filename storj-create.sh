@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd ~
+echo ""
 echo "##########################"
 echo "# Installation de davfs2 #"
 echo "##########################"
@@ -158,8 +159,12 @@ export NVM_DIR=\"/home/\$USER/.nvm\"
 echo \"----- Start Daemon -----\"
 storjshare daemon
 echo \"----- Done -----\"
-sudo mount /home/\$USER/Storj/dataOneDrive/
-find /home/\$USER/Storj/dataOneDrive/ | grep -v \"lost\" | xargs -i sudo chown -R \$USER:\$USER {}
+if grep -qs '/home/\$USER/Storj/dataOneDrive/' /proc/mounts; then
+    echo \"Already mounted.\"
+else
+    sudo mount /home/\$USER/Storj/dataOneDrive/
+fi
+find /home/\$USER/Storj/dataOneDrive/ | grep so-v \"lost\" | xargs -i sudo chown -R \$USER:\$USER {}
 sleep 5
 echo \"----- Start Storj -----\"
 cd /home/\$USER/.config/storjshare/configs/
@@ -172,7 +177,7 @@ screen -dmS StorjMonitor ./storjMonitor.sh
 echo \"----- Done -----\"
 " > /home/$USER/Storj/app/start-storj.sh
 sudo chmod +x start-storj.sh
-
+echo "Done"
 
 echo "######################"
 echo "# Création des nodes #"
