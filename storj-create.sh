@@ -19,10 +19,10 @@ then
   echo "Création du dossier /home/$USER/Storj";
   mkdir /home/$USER/Storj
 fi
-if [ ! -d "/home/$USER/Storj/dataOneDrive" ];
+if [ ! -d "/home/$USER/Storj/dataDrive" ];
 then
-  echo "Création du dossier /home/$USER/Storj/dataOneDrive";
-  mkdir /home/$USER/Storj/dataOneDrive
+  echo "Création du dossier /home/$USER/Storj/dataDrive";
+  mkdir /home/$USER/Storj/dataDrive
 fi
 echo -n "Please Input the OD4B Link, e.g. 'https://****-my.sharepoint.com/personal/*****/Documents/' [ENTER]: "
 read OD4B
@@ -59,7 +59,7 @@ then
   echo "continue..."
 else
   echo "use_locks 0" >> /etc/davfs2/davfs2.conf
-  echo "[/home/$USER/Storj/dataOneDrive]" >> /etc/davfs2/davfs2.conf
+  echo "[/home/$USER/Storj/dataDrive]" >> /etc/davfs2/davfs2.conf
   echo "add_header Cookie ${COOKIE}" >> /etc/davfs2/davfs2.conf
 fi
 rm cookie.txt get-sharepoint-auth-cookie.py
@@ -68,13 +68,13 @@ echo "###########################################"
 echo "# Ajout du point de montage dans la fstab #"
 echo "###########################################"
 
-FSTABALREADYEXIST=`sudo cat /etc/fstab | grep dataOneDrive | wc -l`
+FSTABALREADYEXIST=`sudo cat /etc/fstab | grep dataDrive | wc -l`
 if [[ $FSTABALREADYEXIST -lt 1 ]]
 then
 cat << EOF | sudo tee -a /etc/fstab
 
-# OneDrive
-${OD4B} /home/$USER/Storj/dataOneDrive davfs rw,user,_netdev,noauto 0 0
+# WebDAV
+${OD4B} /home/$USER/Storj/dataDrive davfs rw,user,_netdev,noauto 0 0
 EOF
 else
   echo "Données déjà existantes"
@@ -87,12 +87,12 @@ echo "##########################################"
 echo "# Enregsitrement des identifiants WebDav #"
 echo "##########################################"
 
-USERALREADYEXIST=`sudo cat /etc/davfs2/secrets | grep dataOneDrive | wc -l`
+USERALREADYEXIST=`sudo cat /etc/davfs2/secrets | grep dataDrive | wc -l`
 if [[ $USERALREADYEXIST -lt 1 ]]
 then
 cat << EOF | sudo tee -a /etc/davfs2/secrets
 # OneDrive application password
-/home/$USER/Storj/dataOneDrive $oneDriveUsername $oneDrivePassword
+/home/$USER/Storj/dataDrive $oneDriveUsername $oneDrivePassword
 EOF
 else
   echo "Données déjà existantes"
@@ -105,24 +105,24 @@ echo "#####################"
 echo "# Montage du WebDAV #"
 echo "#####################"
 
-sudo /sbin/mount.davfs ${OD4B} /home/$USER/Storj/dataOneDrive
+sudo /sbin/mount.davfs ${OD4B} /home/$USER/Storj/dataDrive
 
 echo "Press any key to continue"
 read
 
-sudo chown $USER:$USER /home/$USER/Storj/dataOneDrive
+sudo chown $USER:$USER /home/$USER/Storj/dataDrive
 HOSTNAME=`cat /proc/sys/kernel/hostname`
-if [ ! -d "/home/$USER/Storj/dataOneDrive/$HOSTNAME" ]; then
-  echo "Création du dossier /home/$USER/Storj/dataOneDrive/$HOSTNAME";
-  mkdir /home/$USER/Storj/dataOneDrive/$HOSTNAME
+if [ ! -d "/home/$USER/Storj/dataDrive/$HOSTNAME" ]; then
+  echo "Création du dossier /home/$USER/Storj/dataDrive/$HOSTNAME";
+  mkdir /home/$USER/Storj/dataDrive/$HOSTNAME
 fi
-sudo chown $USER:$USER /home/$USER/Storj/dataOneDrive/$HOSTNAME
-sudo chmod g+w /home/$USER/Storj/dataOneDrive/$HOSTNAME
+sudo chown $USER:$USER /home/$USER/Storj/dataDrive/$HOSTNAME
+sudo chmod g+w /home/$USER/Storj/dataDrive/$HOSTNAME
 for ((i=1 ; $i <= $nbStorjNodes ; i++))
 do
-  if [ ! -d "/home/$USER/Storj/dataOneDrive/$HOSTNAME/data$i" ]; then
-    echo "Création du dossier /home/$USER/Storj/dataOneDrive/$HOSTNAME/data$i";
-    mkdir /home/$USER/Storj/dataOneDrive/$HOSTNAME/data$i
+  if [ ! -d "/home/$USER/Storj/dataDrive/$HOSTNAME/data$i" ]; then
+    echo "Création du dossier /home/$USER/Storj/dataDrive/$HOSTNAME/data$i";
+    mkdir /home/$USER/Storj/dataDrive/$HOSTNAME/data$i
   fi
 done
 
@@ -159,12 +159,14 @@ export NVM_DIR=\"/home/\$USER/.nvm\"
 echo \"----- Start Daemon -----\"
 storjshare daemon
 echo \"----- Done -----\"
-if grep -qs '/home/\$USER/Storj/dataOneDrive/' /proc/mounts; then
+if grep -qs 'dataDrive/' /proc/mounts; then
     echo \"Already mounted.\"
 else
-    sudo mount /home/\$USER/Storj/dataOneDrive/
+    echo \"----- Montage WebDAV -----\"
+    sudo mount /home/\$USER/Storj/dataDrive/
+    find /home/\$USER/Storj/dataDrive/ 2>/dev/null | grep -v \"lost\" | xargs -i sudo chown -R \$USER:\$USER {} 2>/dev/null
+    echo \"----- Done -----\"
 fi
-find /home/\$USER/Storj/dataOneDrive/ | grep so-v \"lost\" | xargs -i sudo chown -R \$USER:\$USER {}
 sleep 5
 echo \"----- Start Storj -----\"
 cd /home/\$USER/.config/storjshare/configs/
@@ -187,7 +189,7 @@ for ((i=1 ; $i <= $nbStorjNodes ; i++))
 do
   echo -n "Which network port do you want to use for the node $i ? [ENTER]: "
   read storjPort
-  storjshare create --storj=$ethWallet --storage=/home/$USER/Storj/dataOneDrive/$HOSTNAME/data$i/ --size $storjNodeSize --rpcaddress $storjNodeIP --rpcport $storjPort --manualforwarding true --noedit  
+  storjshare create --storj=$ethWallet --storage=/home/$USER/Storj/dataDrive/$HOSTNAME/data$i/ --size $storjNodeSize --rpcaddress $storjNodeIP --rpcport $storjPort --manualforwarding true --noedit  
 done
 
 cd /home/$USER/Storj/app
