@@ -2,9 +2,9 @@
 
 cd ~
 echo ""
-echo "##########################"
-echo "# Installation de davfs2 #"
-echo "##########################"
+echo "###############################################"
+echo "# Installation de davfs2 - wget - pyton - git #"
+echo "###############################################"
 
 sudo apt-get update && sudo apt-get install -y davfs2 wget python git
 sudo chmod 777 /etc/davfs2/davfs2.conf
@@ -189,13 +189,13 @@ else
     else
       echo \"use_locks 0\" >> /etc/davfs2/davfs2.conf
       echo \"[/home/$USER/Storj/dataDrive]\" >> /etc/davfs2/davfs2.conf
-      echo \"add_header Cookie ${COOKIE}\" >> /etc/davfs2/davfs2.conf
+      echo \"add_header Cookie \${COOKIE}\" >> /etc/davfs2/davfs2.conf
     fi
     rm cookie.txt get-sharepoint-auth-cookie.py
 
     echo \"----- Montage WebDAV -----\"
     sudo mount /home/\$USER/Storj/dataDrive/
-    echo \"----- Modification des droits sur le dataDrive -----\"
+    echo \"----- Modification des droits sur le WebDAV -----\"
     find /home/\$USER/Storj/dataDrive/ 2>/dev/null | grep -v \"lost\" | xargs -i sudo chown -R \$USER:\$USER {} 2>/dev/null
     echo \"----- Done -----\"
 fi
