@@ -235,7 +235,7 @@ then
   git clone https://github.com/calxibe/StorjMonitor.git
   cd StorjMonitor/
   sudo chmod +x storjMonitor-install.sh
-  sed -i -e "s/YOUR-TOKEN-HERE/\$storjStatToken/g" /tmp/file.txt
+  sed -i -e "s/YOUR-TOKEN-HERE/$storjStatToken/g" storjMonitor.js
   cd ..
 else
   echo "Storj Monitor is already installed"
