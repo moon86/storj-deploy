@@ -166,7 +166,7 @@ export NVM_DIR=\"/home/\$USER/.nvm\"
 echo \"----- Start Daemon -----\"
 storjshare daemon
 echo \"----- Done -----\"
-if grep -qs 'dataDrive/' /proc/mounts; then
+if grep -qs 'dataDrive' /proc/mounts; then
     echo \"Already mounted.\"
 else
     echo \"----- Create cookie -----\"
@@ -181,8 +181,8 @@ else
     sed -i \"s/ //g\" cookie.txt
     cat cookie.txt
 
-    COOKIE=$(cat cookie.txt)
-    DAVFS_CONFIG=$(grep -i \"use_locks 0\" /etc/davfs2/davfs2.conf)
+    COOKIE=\$(cat cookie.txt)
+    DAVFS_CONFIG=\$(grep -i \"use_locks 0\" /etc/davfs2/davfs2.conf)
     if [ \"${DAVFS_CONFIG}\" == \"use_locks 0\" ]
     then
       echo \"continue...\"
@@ -195,6 +195,7 @@ else
 
     echo \"----- Montage WebDAV -----\"
     sudo mount /home/\$USER/Storj/dataDrive/
+    echo \"----- Modification des droits sur le dataDrive -----\"
     find /home/\$USER/Storj/dataDrive/ 2>/dev/null | grep -v \"lost\" | xargs -i sudo chown -R \$USER:\$USER {} 2>/dev/null
     echo \"----- Done -----\"
 fi
