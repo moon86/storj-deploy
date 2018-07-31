@@ -167,7 +167,7 @@ echo \"----- Start Daemon -----\"
 storjshare daemon
 echo \"----- Done -----\"
 if grep -qs 'dataDrive' /proc/mounts; then
-    echo \"Already mounted.\"
+    echo \"WebDAV already mounted.\"
 else
     echo \"----- Create cookie -----\"
     echo \"Replace the current davfs with the backup file\"
@@ -176,8 +176,8 @@ else
     sudo chmod 777 /etc/davfs2/davfs2.conf
     cd /home/$USER/Storj/app/
     wget https://raw.githubusercontent.com/yulahuyed/test/master/get-sharepoint-auth-cookie.py
-    echo \"python get-sharepoint-auth-cookie.py ${OD4B} ${oneDriveUsername} ${oneDrivePassword} > cookie.txt\"
-    python get-sharepoint-auth-cookie.py ${OD4B} ${oneDriveUsername} ${oneDrivePassword} > cookie.txt
+    echo \"python get-sharepoint-auth-cookie.py \${OD4B} \${oneDriveUsername} \${oneDrivePassword} > cookie.txt\"
+    python get-sharepoint-auth-cookie.py \${OD4B} \${oneDriveUsername} \${oneDrivePassword} > cookie.txt
     sed -i \"s/ //g\" cookie.txt
     cat cookie.txt
 
