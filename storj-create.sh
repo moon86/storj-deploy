@@ -183,7 +183,7 @@ else
 
     COOKIE=\$(cat cookie.txt)
     DAVFS_CONFIG=\$(grep -i \"use_locks 0\" /etc/davfs2/davfs2.conf)
-    if [ \"${DAVFS_CONFIG}\" == \"use_locks 0\" ]
+    if [ \"\${DAVFS_CONFIG}\" == \"use_locks 0\" ]
     then
       echo \"continue...\"
     else
