@@ -39,7 +39,7 @@ echo -n "What is your public IP / Domain name ? [ENTER]: "
 read storjNodeIP
 echo -n "What is your ETH wallet ? [ENTER]: "
 read ethWallet
-echo -n "What is your STorj Stat key ? [ENTER]: "
+echo -n "What is your Storj Stat key ? [ENTER]: "
 read storjStatToken
 
 echo "Press any key to continue"
@@ -155,37 +155,13 @@ cd Storj/app
 echo "#!/bin/bash
 
 echo \"----- Set parameters -----\"
-OD4B="${OD4B}"
-oneDriveUsername="${oneDriveUsername}"
-oneDrivePassword="${oneDrivePassword}"
+OD4B=\"${OD4B}\"
+oneDriveUsername=\"${oneDriveUsername}\"
+oneDrivePassword=\"${oneDrivePassword}\"
 
 echo \"----- NVM Load -----\"
 export NVM_DIR=\"/home/\$USER/.nvm\"
 [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" # This loads nvm
-
-echo \"----- Create cookie -----\"
-echo \"Replace the current davfs with the backup file\"
-sudo rm /etc/davfs2/davfs2.conf
-sudo cp /etc/davfs2/davfs2.conf.bak /etc/davfs2/davfs2.conf
-sudo chmod 777 /etc/davfs2/davfs2.conf
-cd /home/$USER/Storj/app/
-wget https://raw.githubusercontent.com/yulahuyed/test/master/get-sharepoint-auth-cookie.py
-echo \"python get-sharepoint-auth-cookie.py ${OD4B} ${oneDriveUsername} ${oneDrivePassword} > cookie.txt\"
-python get-sharepoint-auth-cookie.py ${OD4B} ${oneDriveUsername} ${oneDrivePassword} > cookie.txt
-sed -i \"s/ //g\" cookie.txt
-cat cookie.txt
-
-COOKIE=$(cat cookie.txt)
-DAVFS_CONFIG=$(grep -i \"use_locks 0\" /etc/davfs2/davfs2.conf)
-if [ \"${DAVFS_CONFIG}\" == \"use_locks 0\" ]
-then
-  echo \"continue...\"
-else
-  echo \"use_locks 0\" >> /etc/davfs2/davfs2.conf
-  echo \"[/home/$USER/Storj/dataDrive]\" >> /etc/davfs2/davfs2.conf
-  echo \"add_header Cookie ${COOKIE}\" >> /etc/davfs2/davfs2.conf
-fi
-rm cookie.txt get-sharepoint-auth-cookie.py
 
 echo \"----- Start Daemon -----\"
 storjshare daemon
@@ -193,6 +169,30 @@ echo \"----- Done -----\"
 if grep -qs 'dataDrive/' /proc/mounts; then
     echo \"Already mounted.\"
 else
+    echo \"----- Create cookie -----\"
+    echo \"Replace the current davfs with the backup file\"
+    sudo rm /etc/davfs2/davfs2.conf
+    sudo cp /etc/davfs2/davfs2.conf.bak /etc/davfs2/davfs2.conf
+    sudo chmod 777 /etc/davfs2/davfs2.conf
+    cd /home/$USER/Storj/app/
+    wget https://raw.githubusercontent.com/yulahuyed/test/master/get-sharepoint-auth-cookie.py
+    echo \"python get-sharepoint-auth-cookie.py ${OD4B} ${oneDriveUsername} ${oneDrivePassword} > cookie.txt\"
+    python get-sharepoint-auth-cookie.py ${OD4B} ${oneDriveUsername} ${oneDrivePassword} > cookie.txt
+    sed -i \"s/ //g\" cookie.txt
+    cat cookie.txt
+
+    COOKIE=$(cat cookie.txt)
+    DAVFS_CONFIG=$(grep -i \"use_locks 0\" /etc/davfs2/davfs2.conf)
+    if [ \"${DAVFS_CONFIG}\" == \"use_locks 0\" ]
+    then
+      echo \"continue...\"
+    else
+      echo \"use_locks 0\" >> /etc/davfs2/davfs2.conf
+      echo \"[/home/$USER/Storj/dataDrive]\" >> /etc/davfs2/davfs2.conf
+      echo \"add_header Cookie ${COOKIE}\" >> /etc/davfs2/davfs2.conf
+    fi
+    rm cookie.txt get-sharepoint-auth-cookie.py
+
     echo \"----- Montage WebDAV -----\"
     sudo mount /home/\$USER/Storj/dataDrive/
     find /home/\$USER/Storj/dataDrive/ 2>/dev/null | grep -v \"lost\" | xargs -i sudo chown -R \$USER:\$USER {} 2>/dev/null
